@@ -86,6 +86,7 @@ public class PlayerMovement : MonoBehaviour
     {
         IsGrounded();
         HandleInput();
+
         if (_dashCharges < _maxDashCharges)
         {
             _dashCooldown -= Time.deltaTime;
@@ -95,11 +96,8 @@ public class PlayerMovement : MonoBehaviour
                 _dashCooldown = _dashCooldownTime;
             }
         }
-        if (_dashPressed && _dashCharges > 0 && _state != States.Dash)
-        {
-            ChangeState(States.Dash);
+        if (HandleGlobalTransitions())
             return;
-        }
 
         switch (_state)
         {
@@ -116,8 +114,7 @@ public class PlayerMovement : MonoBehaviour
     {
         ApplyMovement();
         CapSpeed();
-        if (_currentHeight == _targetHeight)
-            return;
+        RemoveWallVelocity();
         LerpHeight();
     }
 
@@ -157,8 +154,11 @@ public class PlayerMovement : MonoBehaviour
 
     public void IsGrounded()
     {
-        float groundCheckDist = _currentHeight + _currentHeight * 0.08f;
+        float groundCheckDist = _currentHeight * 0.6f + 0.2f;
         _isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDist, _groundLayer);
+        //_isGrounded = Physics.SphereCast(transform.position, 0.3f, Vector3.down, out _, groundCheckDist, _groundLayer);
+
+        Debug.DrawRay(transform.position, Vector3.down * groundCheckDist, Color.yellow);
     }
 
     private void ChangeState(States state)
@@ -172,7 +172,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnEnter(States state)
     {
-        Debug.Log("current state" + state);
+        Debug.Log("current state :" + state);
         switch (state)
         {
             case States.Idle:
@@ -224,6 +224,7 @@ public class PlayerMovement : MonoBehaviour
             case States.Crouch: _targetHeight = _standHeight; break;
         }
     }
+    #endregion
     #region Helper Functions
     /// <summary>
     /// handles jump/dash/air
@@ -237,16 +238,21 @@ public class PlayerMovement : MonoBehaviour
             ChangeState(States.Dash);
             return true;
         }
+        if (!_isGrounded)
+        {
+            //set to air
+            ChangeState(States.Air);
+            return true;
+        }
         if (_jumpPressed && _isGrounded)
         {
             //jump
             ChangeState(States.Jump);
             return true;
         }
-        if (!_isGrounded)
+        if (_moveMag < 0.1f)
         {
-            //set to air
-            ChangeState(States.Air);
+            ChangeState(States.Idle);
             return true;
         }
         return false;
@@ -270,6 +276,34 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Speed/Collision
+
+
+    private void RemoveWallVelocity()
+    {
+        if (_isGrounded)
+            return;
+
+        Vector3 checkDir = _Rb.velocity;
+        checkDir.y = 0f;
+
+        if (checkDir.sqrMagnitude < 0.01f)
+            return;
+
+        checkDir.Normalize();
+
+        if (!Physics.Raycast(transform.position, checkDir, out _wallHit, 0.4f))
+            return;
+
+        Vector3 vel = _Rb.velocity;
+
+        float intoWall = Vector3.Dot(vel, _wallHit.normal);
+
+        if (intoWall < 0f)
+        {
+            _Rb.velocity -= _wallHit.normal * intoWall;
+        }
+    }
+
 
     private void LerpHeight()
     {
@@ -299,8 +333,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
-
     private void ApplyMovement()
     {
         //enable/dissable movement, and is called from FixedUpdate
@@ -319,21 +351,23 @@ public class PlayerMovement : MonoBehaviour
 
         if (_isGrounded)
         {
-            _Rb.AddForce(_moveDir * _moveSpeed * Time.deltaTime, ForceMode.VelocityChange);
+            _Rb.AddForce(_moveDir * _moveSpeed * 0.8f, ForceMode.VelocityChange);
             return;
         }
         else
         {
             Vector3 airDir = _moveDir;
 
-            if (Physics.Raycast(transform.position, _moveDir, out _wallHit, 0.2f))
+            if (Physics.Raycast(transform.position, _moveDir, out _wallHit, 0.4f))
+            {
                 airDir = Vector3.ProjectOnPlane(_moveDir, _wallHit.normal);
+            }
 
-            _Rb.AddForce(airDir * _moveSpeed * 0.6f * Time.deltaTime, ForceMode.Acceleration);
+            _Rb.AddForce(airDir * _moveSpeed * 0.5f, ForceMode.VelocityChange);
         }
+
     }
 
-    #endregion
     #endregion
 
     #region State Updates
@@ -342,14 +376,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_isGrounded)
             ResolveState();
-        ApplyMovement();
     }
 
     public void IdleUpdate()
     {
-        if (HandleGlobalTransitions())
-            return;
-
         if (_moveMag > 0.1f)
         {
             ChangeState(_sprintToggle ? States.Sprint : States.Walk);
@@ -358,18 +388,12 @@ public class PlayerMovement : MonoBehaviour
     }
     public void WalkUpdate()
     {
-        if (HandleGlobalTransitions())
-            return;
-
-        ApplyMovement();
+        if (_sprintToggle)
+            ChangeState(States.Sprint);
     }
 
     public void SprintUpdate()
     {
-        if (HandleGlobalTransitions())
-            return;
-
-        ApplyMovement();
         if (_crouchToggle)
         {
             ChangeState(States.Crouch);
@@ -377,9 +401,16 @@ public class PlayerMovement : MonoBehaviour
         }
 
         if (!_sprintToggle)
+        {
             ChangeState(States.Walk);
-        else if (_moveMag < 0.1f)
+            return;
+        }
+
+        if (_moveMag < 0.1f)
+        {
             ChangeState(States.Idle);
+            return;
+        }
     }
     private void JumpUpdate()
     {
@@ -400,10 +431,8 @@ public class PlayerMovement : MonoBehaviour
     }
     private void CrouchUpdate()
     {
-        ApplyMovement();
         if (!_crouchToggle)
-            if (!HandleGlobalTransitions())
-                ResolveState();
+            ResolveState();
     }
     #endregion
 }
