@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerInteract : MonoBehaviour
 {
     [Header("References")]
-    public Transform camholder;
+    public Transform cameraMain;
 
     [Header("Interact values")]
     public KeyCode interact_key = KeyCode.E;
@@ -19,8 +19,8 @@ public class PlayerInteract : MonoBehaviour
     private void CheckInteractable()
     {
         RaycastHit hit;
-        Debug.DrawRay(camholder.position, camholder.forward * interact_distance, Color.red);
-        if (Physics.Raycast(camholder.position + Vector3.forward * 0.2f, camholder.forward, out hit, interact_distance))
+        Debug.DrawRay(cameraMain.position, cameraMain.forward * interact_distance, Color.red);
+        if (Physics.Raycast(cameraMain.position + Vector3.forward * 0.2f, cameraMain.forward, out hit, interact_distance))
         {
             var interactable = hit.collider.gameObject.GetComponent<CanInteract>();
             if (interactable != currentInteractable)

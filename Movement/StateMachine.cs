@@ -44,6 +44,7 @@ public class StateMachine
         switch (state)
         {
             case MovementState.Idle:
+                ctx.Move.StopMove();
                 break;
             case MovementState.Walk:
                 ctx.Move.SetWalk();
@@ -51,26 +52,27 @@ public class StateMachine
             case MovementState.Sprint:
                 ctx.Move.SetSprint();
                 break;
-            case MovementState.Crouch:
-                break;
+            // case MovementState.Crouch:
+            //     break;
             case MovementState.Jump:
-                ctx.Jump.Execute();
+                ctx.Jump.StartJump();
                 break;
             case MovementState.Dash:
+                ctx.Dash.StartDash();
                 break;
         }
     }
     private void OnExit(MovementState state)
     {
-        switch (state)
-        {
-            case MovementState.Air: break;
-            case MovementState.Idle: break;
-            case MovementState.Walk: break;
-            case MovementState.Sprint: break;
-            case MovementState.Jump: break;
-            case MovementState.Dash: break;
-        }
+        // switch (state)
+        // {
+        //     case MovementState.Air: break;
+        //     case MovementState.Idle: break;
+        //     case MovementState.Walk: break;
+        //     case MovementState.Sprint: break;
+        //     case MovementState.Jump: break;
+        //     case MovementState.Dash: break;
+        // }
     }
 
     #region Helper Functions
@@ -94,9 +96,7 @@ public class StateMachine
         }
         if (ctx.Input.jumpInput && ctx.Ground._isGrounded)
         {
-            //jump
             ChangeState(MovementState.Jump);
-            ctx.Jump.Execute();
             return true;
         }
         if (ctx.Input.moveMagnitude < 0.1f)

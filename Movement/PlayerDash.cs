@@ -20,9 +20,11 @@ public class PlayerDash
 
     public void Tick()
     {
-        if (ctx.State.currentState == StateMachine.MovementState.Dash)
+        if (ctx.State.currentState == StateMachine.MovementState.Dash && CanDash())
         {
             ctx.Dash.StartDash();
+            dashCharges--;
+            dashCooldown = ctx.PlayerVariables.dashCooldownTime;
         }
 
         if (dashCooldownTimer > 0f)
@@ -33,20 +35,10 @@ public class PlayerDash
     {
         return dashCharges > 0 && dashCooldownTimer <= 0f;
     }
-
     public void StartDash()
     {
-        if (dashCharges <= 0) return;
-
-        dashCharges--;
-        dashCooldown = ctx.PlayerVariables.dashCooldownTime;
-
-        Vector3 dir = ctx.Input.moveMagnitude > 0.1f
-            ? ctx.Input.moveDirection
-            : ctx.Orientation.forward;
+        Vector3 dir = ctx.Input.moveMagnitude > 0.1f ? ctx.Input.moveDirection : ctx.Orientation.forward;
 
         ctx.Rb.AddForce(dir * ctx.PlayerVariables.dashForce, ForceMode.Impulse);
     }
-
-
 }

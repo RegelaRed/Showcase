@@ -7,8 +7,9 @@ public class PlayerJump
     {
         this.ctx = ctx;
     }
-    public void Execute()
+    public void StartJump()
     {
         ctx.Rb.AddForce(Vector3.up * ctx.PlayerVariables.jumpForce * 2, ForceMode.Impulse);
+        ctx.Rb.AddForce(ctx.Orientation.forward.normalized * 0.2f, ForceMode.Impulse);
     }
 }
