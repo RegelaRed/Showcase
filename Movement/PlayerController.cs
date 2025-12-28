@@ -3,20 +3,20 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Rigidbody rigidBody;
-    [SerializeField] private Transform orientation;
-    [SerializeField] private PlayerVariables playerVariables;
-    [SerializeField] private float standHeight = 2f;
+    [SerializeField] private Rigidbody _rigidBody;
+    [SerializeField] private Transform _orientation;
+    [SerializeField] private PlayerVariables _playerVariables;
+    [SerializeField] private float _standHeight = 2f;
 
     // Public access (read-only)
-    public Rigidbody Rb => rigidBody;
-    public Transform Orientation => orientation;
-    public PlayerVariables PlayerVariables => playerVariables;
-    public float StandHeight => standHeight;
+    public Rigidbody Rb => _rigidBody;
+    public Transform Orientation => _orientation;
+    public PlayerVariables PlayerVariables => _playerVariables;
+    public float StandHeight => _standHeight;
 
     // Modules
     public PlayerInput Input { get; private set; }
-    public PlayerPhysicsUpdate Move { get; private set; }
+    public PlayerPhysicsUpdate Movement { get; private set; }
     public PlayerGrounded Ground { get; private set; }
     public PlayerDash Dash { get; private set; }
     public PlayerJump Jump { get; private set; }
@@ -24,10 +24,10 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        rigidBody.freezeRotation = true;
+        _rigidBody.freezeRotation = true;
 
         Input = new PlayerInput(this);
-        Move = new PlayerPhysicsUpdate(this);
+        Movement = new PlayerPhysicsUpdate(this);
         Ground = new PlayerGrounded(this);
         Dash = new PlayerDash(this);
         Jump = new PlayerJump(this);
@@ -42,6 +42,6 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        Move.Tick();
+        Movement.Tick();
     }
 }

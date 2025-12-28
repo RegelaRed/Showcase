@@ -7,19 +7,17 @@ public class PlayerInput
     {
         this.ctx = ctx;
     }
-    public Vector3 moveDirection { get; private set; }
-    public float moveMagnitude { get; private set; }
-
-    public bool sprintInput { get; private set; }
-    public bool jumpInput { get; private set; }
-    public bool dashInput { get; private set; }
-    public bool isCrouch { get; private set; }
+    public Vector3 MoveDirection { get; private set; }
+    public float MoveMagnitude { get; private set; }
+    public bool SprintPressed { get; private set; }
+    public bool JumpPressed { get; private set; }
+    public bool DashPressed { get; private set; }
+    public bool IsCrouch { get; private set; }
 
 
 
     public void Tick()
     {
-        //if input is 0 then idle
         Vector3 forward = ctx.Orientation.forward;
         Vector3 right = ctx.Orientation.right;
 
@@ -29,18 +27,18 @@ public class PlayerInput
         forward.Normalize();
         right.Normalize();
 
-        moveDirection = forward * Input.GetAxisRaw("Vertical") + right * Input.GetAxisRaw("Horizontal");
-        moveMagnitude = moveDirection.magnitude;
-        moveDirection = moveDirection.normalized;
+        MoveDirection = forward * Input.GetAxisRaw("Vertical") + right * Input.GetAxisRaw("Horizontal");
+        MoveMagnitude = MoveDirection.magnitude;
+        MoveDirection = MoveDirection.normalized;
 
-        dashInput = Input.GetKeyDown(KeyCode.LeftShift);
-        jumpInput = Input.GetKeyDown(KeyCode.Space);
+        DashPressed = Input.GetKeyDown(KeyCode.LeftShift);
+        JumpPressed = Input.GetKeyDown(KeyCode.Space);
 
         if (Input.GetKeyDown(KeyCode.LeftAlt))
-            isCrouch = !isCrouch;
+            IsCrouch = !IsCrouch;
 
         if (Input.GetKeyDown(KeyCode.LeftControl))
-            sprintInput = !sprintInput;
+            SprintPressed = !SprintPressed;
     }
 
 }

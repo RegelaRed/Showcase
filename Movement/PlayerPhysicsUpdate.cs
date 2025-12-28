@@ -28,12 +28,12 @@ public class PlayerPhysicsUpdate
         CapSpeed();
 
         //applys rb.addforce based on state
-        if (ctx.Input.moveMagnitude < 0.1f)
+        if (ctx.Input.MoveMagnitude < 0.1f)
             return;
 
-        Vector3 movDir = ctx.Input.moveDirection;
+        Vector3 movDir = ctx.Input.MoveDirection;
 
-        if (ctx.Ground._isGrounded)
+        if (ctx.Ground.IsGrounded)
         {
             ctx.Rb.AddForce(movDir * currentMoveSpeed * 0.8f, ForceMode.VelocityChange);
         }

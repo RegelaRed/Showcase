@@ -11,14 +11,14 @@ public class StateMachine
     {
         Air, Idle, Walk, Sprint, Crouch, Jump, Dash
     }
-    public MovementState currentState { get; private set; } = MovementState.Idle;
+    public MovementState CurrentState { get; private set; } = MovementState.Idle;
 
     public void Tick()
     {
         if (HandleGlobalTransitions())
             return;
 
-        switch (currentState)
+        switch (CurrentState)
         {
             case MovementState.Idle: IdleUpdate(); break;
             case MovementState.Air: AirUpdate(); break;
@@ -32,25 +32,25 @@ public class StateMachine
 
     public void ChangeState(MovementState state)
     {
-        if (state == currentState)
+        if (state == CurrentState)
             return;
-        OnExit(currentState);
-        currentState = state;
+        OnExit(CurrentState);
+        CurrentState = state;
         OnEnter(state);
     }
     private void OnEnter(MovementState state)
     {
-        Debug.Log("Current State " + currentState);
+        Debug.Log("Current State " + CurrentState);
         switch (state)
         {
             case MovementState.Idle:
-                ctx.Move.StopMove();
+                ctx.Movement.StopMove();
                 break;
             case MovementState.Walk:
-                ctx.Move.SetWalk();
+                ctx.Movement.SetWalk();
                 break;
             case MovementState.Sprint:
-                ctx.Move.SetSprint();
+                ctx.Movement.SetSprint();
                 break;
             // case MovementState.Crouch:
             //     break;
@@ -82,24 +82,24 @@ public class StateMachine
     /// <returns></returns>
     private bool HandleGlobalTransitions()
     {
-        if (ctx.Input.dashInput && ctx.Dash.dashCharges > 0)
+        if (ctx.Input.DashPressed && ctx.Dash.dashCharges > 0)
         {
             //dash
             ChangeState(MovementState.Dash);
             return true;
         }
-        if (!ctx.Ground._isGrounded)
+        if (!ctx.Ground.IsGrounded)
         {
             //set to air
             ChangeState(MovementState.Air);
             return true;
         }
-        if (ctx.Input.jumpInput && ctx.Ground._isGrounded)
+        if (ctx.Input.JumpPressed && ctx.Ground.IsGrounded)
         {
             ChangeState(MovementState.Jump);
             return true;
         }
-        if (ctx.Input.moveMagnitude < 0.1f)
+        if (ctx.Input.MoveMagnitude < 0.1f)
         {
             ChangeState(MovementState.Idle);
             return true;
@@ -112,10 +112,10 @@ public class StateMachine
     ///<returns></returns>
     public void ResolveState()
     {
-        if (ctx.Input.moveMagnitude < 0.1f)
+        if (ctx.Input.MoveMagnitude < 0.1f)
             ChangeState(MovementState.Idle);
 
-        else if (ctx.Input.sprintInput)
+        else if (ctx.Input.SprintPressed)
             ChangeState(MovementState.Sprint);
 
         else
@@ -129,15 +129,15 @@ public class StateMachine
 
     private void AirUpdate()
     {
-        if (ctx.Ground._isGrounded)
+        if (ctx.Ground.IsGrounded)
             ResolveState();
     }
 
     private void IdleUpdate()
     {
-        if (ctx.Input.moveMagnitude > 0.1f)
+        if (ctx.Input.MoveMagnitude > 0.1f)
         {
-            ChangeState(ctx.Input.sprintInput ? MovementState.Sprint : MovementState.Walk);
+            ChangeState(ctx.Input.SprintPressed ? MovementState.Sprint : MovementState.Walk);
             return;
         }
     }
@@ -145,26 +145,26 @@ public class StateMachine
     {
 
 
-        if (ctx.Input.sprintInput)
+        if (ctx.Input.SprintPressed)
             ChangeState(MovementState.Sprint);
     }
 
     private void SprintUpdate()
     {
 
-        if (ctx.Input.isCrouch)
+        if (ctx.Input.IsCrouch)
         {
             ChangeState(MovementState.Crouch);
             return;
         }
 
-        if (!ctx.Input.sprintInput)
+        if (!ctx.Input.SprintPressed)
         {
             ChangeState(MovementState.Walk);
             return;
         }
 
-        if (ctx.Input.moveMagnitude < 0.1f)
+        if (ctx.Input.MoveMagnitude < 0.1f)
         {
             ChangeState(MovementState.Idle);
             return;
@@ -181,7 +181,7 @@ public class StateMachine
     }
     private void CrouchUpdate()
     {
-        if (!ctx.Input.isCrouch)
+        if (!ctx.Input.IsCrouch)
             ResolveState();
     }
     #endregion

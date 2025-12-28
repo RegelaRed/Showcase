@@ -12,19 +12,19 @@ public class PlayerDash
     //dash settings
 
     private float dashCooldownTimer;
+    private float dashCooldown;
     public bool IsOnCooldown => dashCooldownTimer > 0f;
     public int dashCharges { get; private set; } = 2;
     public bool HasCharges => dashCharges > 0;
-    private float dashCooldown;
 
 
     public void Tick()
     {
-        if (ctx.State.currentState == StateMachine.MovementState.Dash && CanDash())
+        if (ctx.State.CurrentState == StateMachine.MovementState.Dash && CanDash())
         {
             ctx.Dash.StartDash();
             dashCharges--;
-            dashCooldown = ctx.PlayerVariables.dashCooldownTime;
+            if (dashCooldownTimer <= 0f) dashCooldownTimer = ctx.PlayerVariables.dashCooldownTime;
         }
 
         if (dashCooldownTimer > 0f)
@@ -37,7 +37,7 @@ public class PlayerDash
     }
     public void StartDash()
     {
-        Vector3 dir = ctx.Input.moveMagnitude > 0.1f ? ctx.Input.moveDirection : ctx.Orientation.forward;
+        Vector3 dir = ctx.Input.MoveMagnitude > 0.1f ? ctx.Input.MoveDirection : ctx.Orientation.forward;
 
         ctx.Rb.AddForce(dir * ctx.PlayerVariables.dashForce, ForceMode.Impulse);
     }

@@ -9,7 +9,9 @@ public class PlayerJump
     }
     public void StartJump()
     {
+        Vector3 vel = ctx.Rb.velocity;
+        vel.y = 0;
+        ctx.Rb.velocity = vel;
         ctx.Rb.AddForce(Vector3.up * ctx.PlayerVariables.jumpForce * 2, ForceMode.Impulse);
-        ctx.Rb.AddForce(ctx.Orientation.forward.normalized * 0.2f, ForceMode.Impulse);
     }
 }
