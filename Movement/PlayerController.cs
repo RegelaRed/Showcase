@@ -32,17 +32,16 @@ public class PlayerController : MonoBehaviour
         Dash = new PlayerDash(this);
         Jump = new PlayerJump(this);
         State = new StateMachine(this);
-
-        Ground.Awake();
     }
     private void Update()
     {
-        Input.Update();
-        Ground.Update();
-        State.Update();
+        Input.Tick();
+        Ground.Tick();
+        State.Tick();
+        Dash.Tick();
     }
     private void FixedUpdate()
     {
-        Move.Update();
+        Move.Tick();
     }
 }

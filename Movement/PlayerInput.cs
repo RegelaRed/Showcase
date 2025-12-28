@@ -17,7 +17,7 @@ public class PlayerInput
 
 
 
-    public void Update()
+    public void Tick()
     {
         //if input is 0 then idle
         Vector3 forward = ctx.Orientation.forward;

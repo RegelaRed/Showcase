@@ -9,18 +9,15 @@ public class StateMachine
     }
     public enum MovementState
     {
-        Air,
-        Idle,
-        Walk,
-        Sprint,
-        Crouch,
-        Jump,
-        Dash
+        Air, Idle, Walk, Sprint, Crouch, Jump, Dash
     }
     public MovementState currentState { get; private set; } = MovementState.Idle;
 
-    public void Update()
+    public void Tick()
     {
+        if (HandleGlobalTransitions())
+            return;
+
         switch (currentState)
         {
             case MovementState.Idle: IdleUpdate(); break;
@@ -44,11 +41,9 @@ public class StateMachine
     private void OnEnter(MovementState state)
     {
         Debug.Log("Current State " + currentState);
-
         switch (state)
         {
             case MovementState.Idle:
-
                 break;
             case MovementState.Walk:
                 ctx.Move.SetWalk();
@@ -59,18 +54,14 @@ public class StateMachine
             case MovementState.Crouch:
                 break;
             case MovementState.Jump:
+                ctx.Jump.Execute();
                 break;
             case MovementState.Dash:
-                Vector3 dashDir = ctx.Input.moveMagnitude > 0.1f ? ctx.Input.moveDirection : ctx.Orientation.forward;
-                ctx.Dash.StartDash(dashDir);
                 break;
-
         }
     }
     private void OnExit(MovementState state)
     {
-        // if (HandleGlobalTransitions())
-        //     return;
         switch (state)
         {
             case MovementState.Air: break;
@@ -144,9 +135,6 @@ public class StateMachine
 
     private void IdleUpdate()
     {
-        if (HandleGlobalTransitions())
-            return;
-
         if (ctx.Input.moveMagnitude > 0.1f)
         {
             ChangeState(ctx.Input.sprintInput ? MovementState.Sprint : MovementState.Walk);
@@ -155,8 +143,7 @@ public class StateMachine
     }
     private void WalkUpdate()
     {
-        if (HandleGlobalTransitions())
-            return;
+
 
         if (ctx.Input.sprintInput)
             ChangeState(MovementState.Sprint);
@@ -164,8 +151,6 @@ public class StateMachine
 
     private void SprintUpdate()
     {
-        if (HandleGlobalTransitions())
-            return;
 
         if (ctx.Input.isCrouch)
         {
@@ -189,7 +174,6 @@ public class StateMachine
     {
         ResolveState();
     }
-
 
     private void DashUpdate()
     {

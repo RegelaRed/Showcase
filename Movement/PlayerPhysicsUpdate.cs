@@ -16,7 +16,7 @@ public class PlayerPhysicsUpdate
     {
         currentMoveSpeed = ctx.PlayerVariables.sprintSpeed;
     }
-    public void Update()
+    public void Tick()
     {
         //applys rb.addforce based on state
         if (ctx.Input.moveMagnitude < 0.1f)
