@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerInput
 {
+    #region Variables
     private readonly PlayerController ctx;
     public PlayerInput(PlayerController ctx)
     {
@@ -14,8 +15,7 @@ public class PlayerInput
     public bool DashPressed { get; private set; }
     public bool IsCrouch { get; private set; }
 
-
-
+    #endregion
     public void Tick()
     {
         Vector3 forward = ctx.Orientation.forward;

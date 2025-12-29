@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerGrounded
 {
+    #region Variables
     private readonly PlayerController ctx;
     public PlayerGrounded(PlayerController ctx)
     {
@@ -11,7 +12,7 @@ public class PlayerGrounded
     private bool isGrounded;
     public bool IsGrounded => isGrounded;
     private float CurrentHeight;
-
+    #endregion
     public void Tick()
     {
         float groundCheckDist = CurrentHeight * 0.6f;

@@ -2,13 +2,15 @@ using UnityEngine;
 
 public class PlayerMovement
 {
+    #region Variables
     private PlayerController ctx;
     public PlayerMovement(PlayerController ctx)
     {
         this.ctx = ctx;
     }
-
     private float currentMoveSpeed;
+
+    #endregion
     #region Public Functions
     public void SetWalk()
     {
@@ -46,6 +48,7 @@ public class PlayerMovement
         ctx.Rb.velocity = new Vector3(0, ctx.Rb.velocity.y, 0);
     }
     #endregion
+
     private void CapSpeed()
     {
         //limits maximum velocity

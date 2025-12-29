@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerJump
 {
+    #region Variables
     private float jumpStateTime = 0.5f;
     private float jumpTimer;
     public bool IsJumping => jumpTimer > 0;
@@ -10,7 +11,7 @@ public class PlayerJump
     {
         this.ctx = ctx;
     }
-
+    #endregion
     public void Tick()
     {
         HandleJumpDuration();

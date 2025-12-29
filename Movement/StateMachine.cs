@@ -140,7 +140,7 @@ public class StateMachine
     {
         if (ctx.Input.SprintPressed)
             ChangeState(MovementState.Sprint);
-            
+
         if (ctx.Input.MoveMagnitude < 0.1f)
             ChangeState(MovementState.Idle);
 
