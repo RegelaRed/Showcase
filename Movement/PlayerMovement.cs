@@ -31,12 +31,12 @@ public class PlayerMovement
 
         if (ctx.Ground.IsGrounded)
         {
+            //movement when player is on ground
             ctx.Rb.AddForce(movDir * currentMoveSpeed * 0.8f, ForceMode.VelocityChange);
+            return;
         }
-        else
-        {
-            ctx.Rb.AddForce(movDir * currentMoveSpeed * 0.05f, ForceMode.VelocityChange);
-        }
+        //movement when player is not on ground
+        ctx.Rb.AddForce(movDir * currentMoveSpeed * 0.05f, ForceMode.VelocityChange);
     }
 
     public void StopMove()

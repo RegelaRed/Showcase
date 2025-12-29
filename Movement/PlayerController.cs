@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
         Ground.Tick();
         State.Tick();
         Dash.Tick();
+        Jump.Tick();
     }
     private void FixedUpdate()
     {

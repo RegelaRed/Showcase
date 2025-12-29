@@ -1,4 +1,3 @@
-
 public enum MovementState
 {
     Air,
@@ -9,4 +8,3 @@ public enum MovementState
     Jump,
     Dash
 }
-

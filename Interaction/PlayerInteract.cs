@@ -7,7 +7,7 @@ public class PlayerInteract : MonoBehaviour
 
     [Header("Interact values")]
     public KeyCode interact_key = KeyCode.E;
-    private float interact_distance = 4.7f;
+    private float interact_distance = 4f;
     private CanInteract currentInteractable;
 
 
@@ -32,7 +32,7 @@ public class PlayerInteract : MonoBehaviour
             }
             if (currentInteractable != null && Input.GetKeyDown(interact_key))
             {
-                Debug.Log("player stopped looking at", hit.collider.gameObject);
+                //Debug.Log("player stopped looking at", hit.collider.gameObject);
                 currentInteractable.Call();
             }
         }

@@ -20,6 +20,7 @@ public class PlayerDash
         DashCharges = ctx.PlayerVariables.maxDashCharges;
         regenTimer = ctx.PlayerVariables.dashRegenTime;
     }
+
     #endregion
     #region Public Functions
     public void StartDash()
@@ -28,9 +29,10 @@ public class PlayerDash
             return;
 
         DashCharges--;
-
-        isDashing = true;
+        regenTimer = ctx.PlayerVariables.dashRegenTime;
+        
         dashTimer = ctx.PlayerVariables.dashDuration;
+        isDashing = true;
 
         Vector3 dir = ctx.Orientation.forward;
         ctx.Rb.velocity = Vector3.zero;
@@ -44,37 +46,28 @@ public class PlayerDash
     }
     #endregion
     #region Private Functions
-    private void HandleDashCooldown(float dt)
-    {
-        if (!isDashing)
-            return;
-
-        dashTimer -= dt;
-
-        if (dashTimer <= 0)
-        {
-            EndDash();
-        }
-    }
     private void HandleDashRegen(float dt)
     {
         if (DashCharges >= ctx.PlayerVariables.maxDashCharges)
             return;
 
-        regenTimer -= dt;
+        regenTimer = Mathf.Max(0, regenTimer - dt);
+
         if (regenTimer <= 0)
         {
             DashCharges++;
             regenTimer = ctx.PlayerVariables.dashRegenTime;
         }
     }
-    public void EndDash()
+    private void HandleDashCooldown(float dt)
     {
-        isDashing = false;
-        if (ctx.Ground.IsGrounded)
-            ctx.State.ChangeState(MovementState.Sprint);
-        else
-            ctx.State.ChangeState(MovementState.Air);
+        if (!isDashing)
+            return;
+
+        dashTimer = Mathf.Max(0, dashTimer - dt);
+
+        if (dashTimer <= 0)
+            isDashing = false;
     }
     #endregion
 }

@@ -9,6 +9,7 @@ public class StateMachine
         this.ctx = ctx;
     }
     public MovementState CurrentState { get; private set; } = MovementState.Idle;
+
     #endregion
     #region Public Methods
     public void Tick()
@@ -27,53 +28,51 @@ public class StateMachine
             case MovementState.Dash: DashUpdate(); break;
         }
     }
-
     public void ChangeState(MovementState state)
     {
         if (state == CurrentState)
             return;
-        OnExit(CurrentState);
+        //OnExit(CurrentState);
+
+        var prevState = CurrentState;
         CurrentState = state;
+        Debug.Log("Entering New State from " + prevState + " to " + state);
+
         OnEnter(state);
     }
     #endregion
     #region State Lifecycle
     private void OnEnter(MovementState state)
     {
-        Debug.Log("Current State " + CurrentState);
         switch (state)
         {
             case MovementState.Idle:
                 ctx.Movement.StopMove();
                 break;
+
             case MovementState.Walk:
                 ctx.Movement.SetWalk();
                 break;
+
             case MovementState.Sprint:
                 ctx.Movement.SetSprint();
                 break;
+
             case MovementState.Crouch:
                 break;
+
             case MovementState.Jump:
                 ctx.Jump.StartJump();
                 break;
+
             case MovementState.Dash:
                 ctx.Dash.StartDash();
                 break;
         }
+
     }
-    private void OnExit(MovementState state)
-    {
-        switch (state)
-        {
-            case MovementState.Air: break;
-            case MovementState.Idle: break;
-            case MovementState.Walk: break;
-            case MovementState.Sprint: break;
-            case MovementState.Jump: break;
-            case MovementState.Dash: break;
-        }
-    }
+    private void OnExit(MovementState state) { }
+
     #endregion
     #region Helper Functions
 
@@ -83,6 +82,9 @@ public class StateMachine
     /// <returns></returns>
     private bool HandleGlobalTransitions()
     {
+        if (CurrentState == MovementState.Dash || CurrentState == MovementState.Jump)
+            return false;
+
         if (ctx.Input.DashPressed && ctx.Dash.DashCharges > 0)
         {
             //dash
@@ -98,11 +100,6 @@ public class StateMachine
         if (ctx.Input.JumpPressed && ctx.Ground.IsGrounded)
         {
             ChangeState(MovementState.Jump);
-            return true;
-        }
-        if (ctx.Input.MoveMagnitude < 0.1f)
-        {
-            ChangeState(MovementState.Idle);
             return true;
         }
         return false;
@@ -125,7 +122,6 @@ public class StateMachine
 
     #endregion
     #region State Updates
-
     private void AirUpdate()
     {
         if (ctx.Ground.IsGrounded)
@@ -142,15 +138,17 @@ public class StateMachine
     }
     private void WalkUpdate()
     {
-
-
         if (ctx.Input.SprintPressed)
             ChangeState(MovementState.Sprint);
+            
+        if (ctx.Input.MoveMagnitude < 0.1f)
+            ChangeState(MovementState.Idle);
+
+
     }
 
     private void SprintUpdate()
     {
-
         if (ctx.Input.IsCrouch)
         {
             ChangeState(MovementState.Crouch);
@@ -169,15 +167,18 @@ public class StateMachine
             return;
         }
     }
+
     private void JumpUpdate()
     {
-        ResolveState();
+        if (!ctx.Jump.IsJumping)
+            ResolveState();
     }
-
     private void DashUpdate()
     {
-        ResolveState();
+        if (!ctx.Dash.IsDashing)
+            ResolveState();
     }
+
     private void CrouchUpdate()
     {
         if (!ctx.Input.IsCrouch)
