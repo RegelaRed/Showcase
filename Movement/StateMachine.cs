@@ -2,17 +2,15 @@ using UnityEngine;
 
 public class StateMachine
 {
+    #region Variables
     private readonly PlayerController ctx;
     public StateMachine(PlayerController ctx)
     {
         this.ctx = ctx;
     }
-    public enum MovementState
-    {
-        Air, Idle, Walk, Sprint, Crouch, Jump, Dash
-    }
     public MovementState CurrentState { get; private set; } = MovementState.Idle;
-
+    #endregion
+    #region Public Methods
     public void Tick()
     {
         if (HandleGlobalTransitions())
@@ -38,6 +36,8 @@ public class StateMachine
         CurrentState = state;
         OnEnter(state);
     }
+    #endregion
+    #region State Lifecycle
     private void OnEnter(MovementState state)
     {
         Debug.Log("Current State " + CurrentState);
@@ -52,8 +52,8 @@ public class StateMachine
             case MovementState.Sprint:
                 ctx.Movement.SetSprint();
                 break;
-            // case MovementState.Crouch:
-            //     break;
+            case MovementState.Crouch:
+                break;
             case MovementState.Jump:
                 ctx.Jump.StartJump();
                 break;
@@ -64,25 +64,26 @@ public class StateMachine
     }
     private void OnExit(MovementState state)
     {
-        // switch (state)
-        // {
-        //     case MovementState.Air: break;
-        //     case MovementState.Idle: break;
-        //     case MovementState.Walk: break;
-        //     case MovementState.Sprint: break;
-        //     case MovementState.Jump: break;
-        //     case MovementState.Dash: break;
-        // }
+        switch (state)
+        {
+            case MovementState.Air: break;
+            case MovementState.Idle: break;
+            case MovementState.Walk: break;
+            case MovementState.Sprint: break;
+            case MovementState.Jump: break;
+            case MovementState.Dash: break;
+        }
     }
-
+    #endregion
     #region Helper Functions
+
     /// <summary>
-    /// handles jump/dash/air
+    /// handles jump/dash/air transitions
     /// </summary>
     /// <returns></returns>
     private bool HandleGlobalTransitions()
     {
-        if (ctx.Input.DashPressed && ctx.Dash.dashCharges > 0)
+        if (ctx.Input.DashPressed && ctx.Dash.DashCharges > 0)
         {
             //dash
             ChangeState(MovementState.Dash);
@@ -110,7 +111,7 @@ public class StateMachine
     /// Handles idle/sprint/walk transitions
     /// </summary>
     ///<returns></returns>
-    public void ResolveState()
+    private void ResolveState()
     {
         if (ctx.Input.MoveMagnitude < 0.1f)
             ChangeState(MovementState.Idle);
@@ -123,8 +124,6 @@ public class StateMachine
     }
 
     #endregion
-
-
     #region State Updates
 
     private void AirUpdate()

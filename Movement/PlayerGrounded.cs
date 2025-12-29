@@ -14,7 +14,7 @@ public class PlayerGrounded
 
     public void Tick()
     {
-        float groundCheckDist = CurrentHeight * 0.6f + 0.2f;
+        float groundCheckDist = CurrentHeight * 0.6f;
         isGrounded = Physics.Raycast(ctx.Rb.position, Vector3.down, groundCheckDist, ctx.PlayerVariables.groundLayer);
 
         Debug.DrawRay(ctx.Rb.position, Vector3.down * groundCheckDist, Color.yellow);

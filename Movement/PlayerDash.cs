@@ -3,42 +3,78 @@ using UnityEngine;
 
 public class PlayerDash
 {
+    #region Variables
+    private float dashTimer;
+    private bool isDashing;
+
+    public int DashCharges { get; private set; }
+    private float regenTimer;
+
+    public bool IsDashing => isDashing;
+    public bool CanDash => !isDashing && DashCharges > 0;
+
     private readonly PlayerController ctx;
     public PlayerDash(PlayerController ctx)
     {
         this.ctx = ctx;
-        dashCharges = ctx.PlayerVariables.maxDashCharges;
+        DashCharges = ctx.PlayerVariables.maxDashCharges;
+        regenTimer = ctx.PlayerVariables.dashRegenTime;
     }
-    //dash settings
-
-    private float dashCooldownTimer;
-    private float dashCooldown;
-    public bool IsOnCooldown => dashCooldownTimer > 0f;
-    public int dashCharges { get; private set; } = 2;
-    public bool HasCharges => dashCharges > 0;
-
-
-    public void Tick()
-    {
-        if (ctx.State.CurrentState == StateMachine.MovementState.Dash && CanDash())
-        {
-            ctx.Dash.StartDash();
-            dashCharges--;
-            if (dashCooldownTimer <= 0f) dashCooldownTimer = ctx.PlayerVariables.dashCooldownTime;
-        }
-
-        if (dashCooldownTimer > 0f)
-            dashCooldownTimer -= Time.deltaTime;
-    }
-
-    public bool CanDash()
-    {
-        return dashCharges > 0 && dashCooldownTimer <= 0f;
-    }
+    #endregion
+    #region Public Functions
     public void StartDash()
     {
-        Vector3 dir = ctx.Input.MoveMagnitude > 0.1f ? ctx.Input.MoveDirection : ctx.Orientation.forward;
+        if (!CanDash)
+            return;
 
-        ctx.Rb.AddForce(dir * ctx.PlayerVariables.dashForce, ForceMode.Impulse);
+        DashCharges--;
+
+        isDashing = true;
+        dashTimer = ctx.PlayerVariables.dashDuration;
+
+        Vector3 dir = ctx.Orientation.forward;
+        ctx.Rb.velocity = Vector3.zero;
+        ctx.Rb.AddForce(dir * ctx.PlayerVariables.dashForce, ForceMode.VelocityChange);
     }
+    public void Tick()
+    {
+        float dt = Time.deltaTime;
+        HandleDashCooldown(dt);
+        HandleDashRegen(dt);
+    }
+    #endregion
+    #region Private Functions
+    private void HandleDashCooldown(float dt)
+    {
+        if (!isDashing)
+            return;
+
+        dashTimer -= dt;
+
+        if (dashTimer <= 0)
+        {
+            EndDash();
+        }
+    }
+    private void HandleDashRegen(float dt)
+    {
+        if (DashCharges >= ctx.PlayerVariables.maxDashCharges)
+            return;
+
+        regenTimer -= dt;
+        if (regenTimer <= 0)
+        {
+            DashCharges++;
+            regenTimer = ctx.PlayerVariables.dashRegenTime;
+        }
+    }
+    public void EndDash()
+    {
+        isDashing = false;
+        if (ctx.Ground.IsGrounded)
+            ctx.State.ChangeState(MovementState.Sprint);
+        else
+            ctx.State.ChangeState(MovementState.Air);
+    }
+    #endregion
 }
